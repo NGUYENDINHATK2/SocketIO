@@ -1,0 +1,10 @@
+cmd run  nodemon index.js -> start
+
+ 
+    // when use socket   and when use io 
+    // socket use when  send to  one user
+    // io use when send to all users
+    //to and emit and on 
+    //  to : send to room
+    //  emit : send to client
+    //  on : listen to client
