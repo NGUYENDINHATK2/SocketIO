@@ -6,8 +6,6 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const axios = require('axios');
-
-
 //?types
 let users = [];
 const port = 1506;
@@ -75,23 +73,43 @@ io.on('connection', socket => {
         });
     });
 
-
-
-
     socket.on('open-comemnts-post', async ({ idPost, idUser, token }) => {
         console.log("Open comments post " + idPost + " " + idUser + " " + token);
         if (idPost && idUser && token) {
             socket.join(idPost);
+            // join user to room  post
             getAllCommentPostApi(token, idPost);
             socket.to(idPost).emit('user-connected', idUser);
             socket.on('create-comment', async () => {
                 getAllCommentPostApi(token, idPost);
             });
+            // edit comment
+            socket.on('edit-comment', async () => {
+                getAllCommentPostApi(token, idPost);
+            });
+            // delete comment
+            socket.on('delete-comment', async () => {
+                getAllCommentPostApi(token, idPost);
+            });
+            socket.on('disconnect', () => {
+                console.log("User disconnected");
+                socket.leave(idPost);
+            });
         }
     });
-
-
+    socket.on('open-app-weley', ({ token }) => {
+        if (token) {
+            console.log(token);
+            socket.join(token);
+            socket.on('open-post', ({ token, idPost }) => {
+            });
+        }
+        socket.on('disconnect', () => {
+            socket.leave(token);
+        })
+    });
 })
+
 
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);
