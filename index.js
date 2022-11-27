@@ -53,6 +53,17 @@ const getAllCommentPostApi = (token, idPost) => {
     return null;
 }
 
+const updateSomeInfoPost = (idPost) => {
+    const res = axios.get(`${API_URL.API_URL}/api/getSomeInForPostById/${idPost}`);
+    if (res) {
+        res.then((res) => {
+            io.to(idPost).emit('update-some-info-post', res.data);
+        }).catch((err) => {
+            return null;
+        });
+    }
+}
+
 
 
 io.on('connection', socket => {
@@ -97,16 +108,28 @@ io.on('connection', socket => {
             });
         }
     });
+
     socket.on('open-app-weley', ({ token }) => {
         if (token) {
             console.log(token);
             socket.join(token);
-            socket.on('open-post', ({ token, idPost }) => {
-            });
         }
         socket.on('disconnect', () => {
             socket.leave(token);
         })
+    });
+    socket.on('open-post', ({ idPost, token }) => {
+        if (idPost && token) {
+            socket.join(idPost);
+            console.log("Open post " + idPost + " " + token);
+            socket.on('disconnect', () => {
+                socket.leave(idPost);
+            });
+            // like post
+        }
+    });
+    socket.on('edit-post', ({ id_Post }) => {
+        updateSomeInfoPost(id_Post);
     });
 })
 
