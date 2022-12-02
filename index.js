@@ -1,11 +1,18 @@
 
 
-
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const { instrument } = require("@socket.io/admin-ui");
+
+// https://admin.socket.io/#/
 const axios = require('axios');
+//  @socket.io/admin-ui
+instrument(io, {
+    auth: false
+});
+
 //?types
 let users = [];
 const port = 1506;
@@ -130,6 +137,12 @@ io.on('connection', socket => {
     });
     socket.on('edit-post', ({ id_Post }) => {
         updateSomeInfoPost(id_Post);
+    });
+    // delete-post
+    socket.on('delete-post', ({id_Post})=>{
+        // console.log("Delete post " + id_Post);
+        socket.leave(id_Post);
+        io.to(id_Post).emit('delete-post-client', id_Post);
     });
 })
 
